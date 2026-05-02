@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 // --- FIREBASE ---
-import { auth } from "@/lib/firebase";
-import { getDoc, setDoc, doc, db } from "firebase/firestore";
+import { auth, db} from "@/lib/firebase";
+import { getDoc, setDoc, doc } from "firebase/firestore";
 import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
