@@ -26,7 +26,7 @@ function AuthHandler() {
   const [status, setStatus] = useState<
     "processing" | "success" | "error" | "reset-form"
   >("processing");
-  const [message, setMessage] = useState("Processing request...");
+  const [message, setMessage] = useState("Request is processing...");
   const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
@@ -95,8 +95,8 @@ function AuthHandler() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>System {mode ? `// ${mode}` : ""}</CardTitle>
-          <CardDescription>Action handler for account security</CardDescription>
+          <CardTitle className="text-brand">WAPIWAPI {mode ? `// ${mode}` : ""}</CardTitle>
+          <CardDescription className="mb-4">Account security selection (ASS)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {status === "processing" && (
@@ -132,7 +132,7 @@ function AuthHandler() {
                   placeholder="Enter your new password"
                 />
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="text-brand w-full">
                 Update Password
               </Button>
             </form>

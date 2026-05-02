@@ -406,7 +406,7 @@ export default function MissionPage() {
       {/* CONTEXT: Right click for Context Menu */}
       {contextMenu.visible && (
         <div
-          className="fixed z-50 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl py-1 w-48 animate-in fade-in zoom-in-95 duration-100 overflow-hidden"
+          className="fixed z-50  border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl py-1 w-48 animate-in fade-in zoom-in-95 duration-100 overflow-hidden"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           {isArchiveView ? (

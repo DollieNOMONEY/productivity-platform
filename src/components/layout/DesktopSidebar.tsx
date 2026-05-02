@@ -73,7 +73,7 @@ export default function DesktopSidebar() {
   return (
     <aside className="hidden md:flex w-64 flex-col border-r px-4 py-6 fixed h-full left-0 top-0 z-50">
       <div className="flex items-center gap-2 mb-8 px-2">
-        <span className="text-[10px] md:text-xs tracking-[0.2em] font-black">
+        <span className="text-[10px] md:text-xs tracking-[0.2em] font-black text-brand">
           WAPIWAPI
         </span>
       </div>

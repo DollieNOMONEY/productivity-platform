@@ -211,7 +211,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 text-base font-medium mt-2"
+              className="w-full h-11 text-base font-medium mt-2 bg-brand"
             >
               {loading ? (
                 <>

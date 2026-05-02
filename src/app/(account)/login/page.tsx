@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 // --- FIREBASE ---
 import { auth } from "@/lib/firebase";
+import { getDoc, setDoc, doc, db } from "firebase/firestore";
 import {
   useSignInWithEmailAndPassword,
   useSignInWithGoogle,
 } from "react-firebase-hooks/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 // --- SHADCN UI COMPONENTS ---
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,12 +27,42 @@ import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
+  const [countdown, setCountdown] = useState(0);
 
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
   const [signInWithGoogle, gUser, gLoading, gError] = useSignInWithGoogle(auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetCooldown, setResetCooldown] = useState(false);
+
+  useEffect(() => {
+    const savedExpiry = localStorage.getItem("reset_expiry");
+    
+    if (savedExpiry) {
+      const remaining = Math.ceil((Number.parseInt(savedExpiry) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setCountdown(remaining);
+      } else {
+        localStorage.removeItem("reset_expiry");
+      }
+    }
+
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            localStorage.removeItem("reset_expiry");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
 
   useEffect(() => {
     const authenticatedUser = user?.user || gUser?.user;
@@ -56,6 +88,39 @@ export default function SignInPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Enter your email address first.");
+      return;
+    }
+
+    if (countdown > 0) {
+      toast.warning(`Please wait ${countdown}s before requesting another link.`);
+      return;
+    }
+
+    const resetAction = async () => {
+      await sendPasswordResetEmail(auth, email);
+    };
+
+    toast.promise(resetAction(), {
+      loading: "Following the principals of recovery...",
+      success: () => {
+        const expiry = Date.now() + 60000;
+        localStorage.setItem("reset_expiry", expiry.toString());
+        setCountdown(60);
+        
+        return "We've just sent you an email.";
+      },
+      error: (err) => {
+        if (err.code === "auth/invalid-email") return "Invalid email.";
+        if (err.code === "auth/too-many-requests") return "Too many requests. Try later.";
+        return "Error: Link not available.";
+      },
+      position: "top-center", 
+    });
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -71,6 +136,20 @@ export default function SignInPage() {
         throw new Error("unverified");
       }
 
+      const userRef = doc(db, "users", res.user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: res.user.email,
+          name: res.user.displayName || "User",
+          username: res.user.email?.split('@')[0] || "user",
+          bio: "",
+          profilePictureUrl: "/placeholder/profile_picture.jpg",
+          createdAt: new Date().toISOString(),
+        });
+      }
+    
       return res.user;
     };
     
@@ -78,10 +157,10 @@ export default function SignInPage() {
       loading: "Verifying Identity...",
       success: "Welcome back.",
       error: (err) => {
-        if (err.message === "unverified")
-          return "Please verify your email first.";
-        return "Identity not matched: Access Denied.";
+        if (err.message === "unverified") return "Please verify your email first.";
+        return "Wrong Password.";
       },
+      position: "top-center", 
     });
   };
 
@@ -110,12 +189,14 @@ export default function SignInPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={resetCooldown}
+                  className="text-sm font-medium text-primary underline-offset-4 hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
-                  Forgot password?
-                </Link>
+                  {countdown > 0 ? `Wait ${countdown}s...` : "Forgot password?"}
+                </button>
               </div>
               <Input
                 id="password"
@@ -129,17 +210,20 @@ export default function SignInPage() {
 
             {(error || gError) && (
               <p className="text-sm font-medium text-center text-red-500">
-                {gError && "Google sign-in failed. Please try again."}
-                {!gError &&
-                  error?.message.includes("auth/invalid-credential") &&
-                  "Invalid email or password."}
-                {!gError &&
-                  !error?.message.includes("auth/invalid-credential") &&
-                  error?.message}
+                {(() => {
+                  if (gError) return "Google sign-in failed. Please try again.";
+                  
+                  const msg = error?.message || "";
+                  if (msg.includes("auth/too-many-requests")) return "Too many attempts. Please try again later.";
+                  if (msg.includes("auth/invalid-credential")) return "Invalid email or password.";
+                  if (msg.includes("auth/user-not-found")) return "No account found with this email.";
+                  
+                  return "An unexpected error occurred.";
+                })()}
               </p>
             )}
 
-            <Button type="submit" disabled={loading} className="w-full h-11">
+            <Button type="submit" disabled={loading} className="w-full h-11 bg-brand">
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>

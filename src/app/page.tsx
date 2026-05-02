@@ -22,7 +22,7 @@ export default function LandingPage() {
     <div className="flex min-h-screen flex-col font-sans transition-colors">
       <nav className="flex items-center justify-between px-6 md:px-10 py-8 relative z-50">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">
+          <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-brand">
             WAPIWAPI
           </span>
         </div>
