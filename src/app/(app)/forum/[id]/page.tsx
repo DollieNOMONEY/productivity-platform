@@ -266,20 +266,50 @@ export default function ForumThreadPage() {
   const handleAction = async (
     action: "archive" | "report" | "delete" | "restore",
   ) => {
-    if (action === "delete" && !confirm("Erase this post entirely?")) return;
+    // CONTEXT: if it's anything but delete, run it immediately
+    if (action !== "delete") {
+      executeAction(action);
+      return;
+    }
+    toast("Erase this post entirely?", {
+      position: "top-center",
+      duration: Infinity,
+      classNames: {
+        toast: "flex flex-row items-center justify-between !max-w-md", 
+        content: "flex-1", 
+      },
+      action: {
+        label: "Delete",
+        onClick: () => executeAction("delete"),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(),
+      },
+    });
+  };
 
-    const result = await moderatePost(postId, action, post?.isArchived);
-    if (result.success) {
-      toast.success(result.message, {
-        position: "top-center",
-      });
-      if (action === "delete" && !isAdmin) {
-        router.push("/forum"); // CONTEXT: Only redirect if not admin, admins can still see the deleted post
+  // CONTEXT: a Helper to handle the actual server call with loading state
+  const executeAction = async (action: string) => {
+    const loadingToast = toast.loading(`${action.charAt(0).toUpperCase() + action.slice(1)}ing...`, {
+      position: "top-center",
+    });
+
+    try {
+      const result = await moderatePost(postId, action as any, post?.isArchived);
+      
+      if (result.success) {
+        toast.success(result.message, { id: loadingToast });
+        
+        if (action === "delete" && !isAdmin) {
+          router.push("/forum");
+        }
+      } else {
+        toast.error(result.message, { id: loadingToast });
       }
-    } else {
-      toast.error(result.message, {
-        position: "top-center",
-      });
+    } catch (err) {
+      console.error(err);
+      toast.error("An unexpected error occurred", { id: loadingToast });
     }
   };
 

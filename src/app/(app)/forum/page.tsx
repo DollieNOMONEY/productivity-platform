@@ -333,7 +333,7 @@ export default function ForumHomePage() {
                 <Button
                   variant="ghost"
                   onClick={() => setIsComposing(false)}
-                  className="text-black border border-transparent hover:border-black"
+                  className="text-foreground dark:text-background border border-transparent hover:border-black"
                 >
                   Cancel
                 </Button>
@@ -418,7 +418,7 @@ export default function ForumHomePage() {
           ))}
           {filteredPosts.length === 0 && (
             <p className="text-center text-zinc-500 font-medium py-12">
-              No active discussions found.
+              No discussions found.
             </p>
           )}
         </div>

@@ -235,39 +235,76 @@ export default function DashboardPage() {
       now.getMonth(),
       now.getDate(),
     ).getTime();
-    const yesterday = startOfToday - 1000 * 60 * 60 * 24;
+    const oneDayMs = 1000 * 60 * 60 * 24;
 
     // CONTEXT: Calculate streak before today
-    let pastStreak = 0;
-    if (pastActiveDays.length > 0 && pastActiveDays[0] === yesterday) {
-      pastStreak = 1;
+    let finalCount = 0;
+    let finalStatus = "pending";
+    let finalLabel = "Awaiting Today";
+
+    if (pastActiveDays.length > 0) {
+      // CONTEXT: Find the highest non-breaking streak they ever had ending at their last active day
+      let peakStreak = 1;
       for (let i = 0; i < pastActiveDays.length - 1; i++) {
-        if (
-          Math.floor(
-            (pastActiveDays[i] - pastActiveDays[i + 1]) / (1000 * 60 * 60 * 24),
-          ) === 1
-        ) {
-          pastStreak++;
+        if (Math.floor((pastActiveDays[i] - pastActiveDays[i + 1]) / oneDayMs) === 1) {
+          peakStreak++;
         } else {
-          break;
+          break; // CONTEXT: streak has broken in the past
         }
       }
+
+      // CONTEXT: Calculate "Days Since Last Active"
+      const lastActiveDay = pastActiveDays[0];
+      const daysSinceLastActive = Math.floor((startOfToday - lastActiveDay) / oneDayMs);
+
+      if (daysSinceLastActive === 0) {
+        // CONTEXT: They were active TODAY (it already hit 100% and we re-run the logic again)
+        finalCount = peakStreak;
+        finalStatus = "active";
+        finalLabel = "Streak Ongoing!";
+      } else if (daysSinceLastActive <= 2) {
+        // CONTEXT: They are currently inactive (haven't hit 100% yet today)
+        // daysSinceLastActive: 1 = yesterday'd be last active, 2 = day before, etc.
+        // DAY 1 or 2 of missing: FROZEN
+          finalCount = peakStreak;
+          finalStatus = "frozen";
+          finalLabel = `Frozen [ ${3 - daysSinceLastActive} day(s) left ]`;
+      } 
+      else {
+        // CONTEXT: DAY 3+: DECAYING
+        // Formula: Peak Streak deduction (days missed - 2 grace days)
+          const decayAmount = daysSinceLastActive - 2;
+          finalCount = Math.max(0, peakStreak - decayAmount);
+          
+          if (finalCount > 0) {
+            finalStatus = "decaying";
+            finalLabel = `Decaying [ -${decayAmount} penalty ]`;
+          } else {
+            finalStatus = "pending";
+            finalLabel = "Streak lost. Start over?";
+          }
+        }
     }
 
-    // CONTEXT: If momentum is 100%, add streak to today. Else, it doesn't count.
+    // 3. Apply Today's Progress Boost
     if (newMaxProgress === 100) {
+      // If they were decaying or frozen, hitting 100% brings them back to full + 1
+      // If they were at 0, they start at 1.
       setStreakData({
-        count: pastStreak + 1,
+        count: finalCount + 1,
         status: "active",
         label: "Active Today",
       });
     } else {
+      // Show the "Frozen" or "Decaying" state while they work on today's goals
       setStreakData({
-        count: pastStreak,
-        status: "pending",
-        label: "Awaiting Today",
+        count: finalCount,
+        status: finalStatus,
+        label: finalLabel,
       });
     }
+
+    
   }, [
     timeFocused,
     missions,

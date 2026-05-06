@@ -138,14 +138,14 @@ export function MissionCard({
             className={toogleStyle}
           >
             {task.done && (
-              <CheckSquare className="h-3.5 w-3.5 text-white dark:text-black" />
+              <CheckSquare className="h-3.5 w-3.5 text-white" />
             )}
           </button>
           <span
             className={cn(
               "text-sm font-medium",
-              task.done && "line-through text-zinc-500",
-              isPast && "text-zinc-400",
+              task.done && "line-through text-white",
+              isPast && "text-white",
             )}
           >
             {task.text}
