@@ -95,7 +95,7 @@ function AuthHandler() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-brand">WAPIWAPI {mode ? `// ${mode}` : ""}</CardTitle>
+          <CardTitle className="text-brand">WAPiWAPI {mode ? `// ${mode}` : ""}</CardTitle>
           <CardDescription className="mb-4">Account security selection (ASS)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
