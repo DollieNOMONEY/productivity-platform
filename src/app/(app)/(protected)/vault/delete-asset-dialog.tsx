@@ -25,7 +25,7 @@ export function DeleteAssetLoader({ id, url, onDelete }: DeleteProps) {
       <AlertDialogTrigger asChild>
         <button
           type="button"
-          className="p-2 hover:text-red-600 transition-all cursor-pointer bg-transparent border-none outline-none hover:opacity-80"
+          className="text-background p-2 hover:text-red-600 transition-all cursor-pointer bg-transparent border-none outline-none hover:opacity-80"
           onClick={(e) => {
             e.stopPropagation();
           }}

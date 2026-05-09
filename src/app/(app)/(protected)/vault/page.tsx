@@ -286,7 +286,7 @@ export default function VaultPage() {
                     />
                   </div>
                   <p className="text-xl font-medium mb-1">
-                    {isDragActive ? "DROP TO INJECT" : "DRAG FILES HERE"}
+                    {isDragActive ? "DROP TO UPLOAD" : "DRAG FILES HERE"}
                   </p>
                   <p className="text-sm text-muted-foreground">Tap to browse</p>
                 </div>
@@ -595,12 +595,12 @@ export default function VaultPage() {
               className="relative w-full h-full max-w-6xl mx-auto flex flex-col items-center justify-center rounded-xl overflow-hidden"
               onClick={(e) => e.stopPropagation()} // CONTEXT: Prevent clicking the image/pdf from closing the modal
             >
-              <div className="w-full flex gap-2 p-4  rounded-xl mt-4 overflow-x-auto scrollbar-hide shrink-0">
+              <div className="w-full flex gap-2 p-4 md:justify-center rounded-xl mt-4 overflow-x-auto scrollbar-hide shrink-0">
                 {DEFAULT_SUBJECTS.map((sub) => (
                   <button 
                     key={sub}
                     onClick={() => updateItemSubject(sub)}
-                    className="px-3 py-1 text-[10px] font-medium whitespace-nowrap border rounded-full hover:bg-primary transition-colors"
+                    className="text-foreground bg-background px-3 py-1 text-[10px] font-medium whitespace-nowrap border rounded-full hover:bg-primary transition-colors"
                   >
                     {sub}
                   </button>

@@ -405,7 +405,7 @@ export default function TimerPage() {
 
       {/* CONTEXT: Abort Prompt Backdrop */}
       {showAbortPrompt && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center  backdrop-blur-2xl animate-in fade-in duration-500">
+        <div className="absolute inset-0 z-200 flex items-center justify-center  backdrop-blur-2xl animate-in fade-in duration-500">
           <div className="w-[320px] p-10 rounded-[3rem] border border-brand-highlight shadow-2xl space-y-8 text-center">
             <div className="space-y-2">
               <h3 className="text-2xl font-black tracking-tighter uppercase">
@@ -426,14 +426,28 @@ export default function TimerPage() {
               <Button
                 variant="outline"
                 className="w-full h-14 rounded-3xl border-zinc-200 dark:border-zinc-800 font-bold text-xs"
-                onClick={() => handleAbortLog("Too distracted")}
+                onClick={() => handleAbortLog("Internal Distraction")}
               >
-                Too distracted?
+                Lost focus?
               </Button>
               <Button
                 variant="outline"
                 className="w-full h-14 rounded-3xl border-zinc-200 dark:border-zinc-800 font-bold text-xs"
-                onClick={() => handleAbortLog("Too distracted")}
+                onClick={() => handleAbortLog("Social Interruption")}
+              >
+                Interrupted by someone?
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-3xl border-zinc-200 dark:border-zinc-800 font-bold text-xs"
+                onClick={() => handleAbortLog("Task completed early!")}
+              >
+                Finished early?
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-3xl border-zinc-200 dark:border-zinc-800 font-bold text-xs"
+                onClick={() => handleAbortLog("It was a mistake")}
               >
                 Was it a mistake?
               </Button>

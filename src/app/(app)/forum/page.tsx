@@ -246,7 +246,7 @@ export default function ForumHomePage() {
             >
               <BookOpen className="h-4 w-4" /> Active
             </button>
-            <button
+            {/* <button
               onClick={() => setShowArchived(true)}
               className={cn(
                 "w-full flex items-center gap-2 text-sm p-2 rounded-3xl transition-colors border",
@@ -256,7 +256,7 @@ export default function ForumHomePage() {
               )}
             >
               <Archive className="h-4 w-4" /> Archive
-            </button>
+            </button> */}
           </div>
         </div>
 
