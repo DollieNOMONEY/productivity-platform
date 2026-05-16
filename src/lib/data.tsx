@@ -3,14 +3,14 @@ export interface MISSIONPLACEHOLDER {
   id: string;
   text: string;
   tag: string;
-  color: "neutral" | "alert" | "focus" | "flow";
+  color: "reference" | "critical" | "deep_work" | "light_work";
   done: boolean;
 }
 export const COLORS = {
-  neutral: { label: "Neutral", bg: "bg-brand-bg-m1", text: "text-brand-tx-m1" },
-  alert: { label: "Alert", bg: "bg-brand-bg-m2", text: "text-brand-tx-m2" },
-  focus: { label: "Focus", bg: "bg-brand-bg-m3", text: "text-brand-tx-m3" },
-  flow: { label: "Flow", bg: "bg-brand-bg-m4", text: "text-brand-tx-m4" },
+  reference: { label: "Reference", bg: "bg-brand-bg-m1", text: "text-brand-tx-m1" },
+  critical: { label: "Critical", bg: "bg-brand-bg-m2", text: "text-brand-tx-m2" },
+  deep_work: { label: "Deep Work", bg: "bg-brand-bg-m3", text: "text-brand-tx-m3" },
+  light_work: { label: "Light Work", bg: "bg-brand-bg-m4", text: "text-brand-tx-m4" },
 };
 export const getColorLabel = (colorKey: string | null) => {
   const key = colorKey as keyof typeof COLORS;

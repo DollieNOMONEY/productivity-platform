@@ -158,8 +158,8 @@ export function MissionCard({
             onPointerDown={(e) => e.stopPropagation()}
             className={cn(
               "text-[10px] h-6 px-2 shrink-0 flex items-center rounded-md font-medium",
-              Missions.COLORS[task.color]?.bg || Missions.COLORS.neutral.bg,
-              Missions.COLORS[task.color]?.text || Missions.COLORS.neutral.text,
+              Missions.COLORS[task.color]?.bg || Missions.COLORS.reference.bg,
+              Missions.COLORS[task.color]?.text || Missions.COLORS.reference.text,
               !isPast &&
                 "cursor-pointer hover:opacity-80 transition-opacity active:scale-95",
             )}

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { COLORS } from "@/lib/data";
 import { toast } from "sonner";
 
-export type TaskColor = "neutral" | "alert" | "focus" | "flow";
+export type TaskColor = "reference" | "critical" | "deep_work" | "light_work";
 interface Task {
   text: string;
   tag: string;
@@ -35,8 +35,8 @@ export const TaskModal = ({
   const [taskText, setTaskText] = useState("");
   const [taskTag, setTaskTag] = useState("");
   const [taskColor, setTaskColor] = useState<
-    "neutral" | "alert" | "focus" | "flow"
-  >("neutral");
+    "reference" | "critical" | "deep_work" | "light_work"
+  >("reference");
 
   useEffect(() => {
     if (isOpen) {
@@ -45,7 +45,7 @@ export const TaskModal = ({
       );
       setTaskText(initialData?.text || "");
       setTaskTag(initialData?.tag || "");
-      setTaskColor(initialData?.color || "neutral");
+      setTaskColor(initialData?.color || "reference");
     }
   }, [isOpen, initialData]);
 
