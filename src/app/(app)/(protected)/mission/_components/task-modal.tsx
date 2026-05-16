@@ -133,7 +133,7 @@ export const TaskModal = ({
           </button>
           <button
             onClick={handleSave}
-            className="px-8 py-3 bg-brand text-white rounded-full text-sm hover:bg-zinc-800 transition-colors select-none"
+            className="px-8 py-3 text-white rounded-full text-sm hover:bg-zinc-800 transition-colors select-none"
           >
             {initialData ? "Save Changes" : "Add to List"}
           </button>

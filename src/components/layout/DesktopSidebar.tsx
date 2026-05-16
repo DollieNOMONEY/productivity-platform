@@ -71,67 +71,69 @@ export default function DesktopSidebar() {
     pathname === `/${id}` || (pathname === "/" && id === "dashboard");
 
   return (
-    <aside className="hidden md:flex w-64 flex-col border-r px-4 py-6 fixed h-full left-0 top-0 z-50">
-      <div className="flex items-center gap-2 mb-8 px-2">
-        <span className="text-[10px] md:text-xs tracking-[0.2em] font-black text-brand">
-          WAPiWAPI
-        </span>
-      </div>
+    <aside className="hidden fixed h-dvh left-0 top-0 flex-col w-72 md:flex z-50">
+      <div className="bg-accent1 px-4 py-6 rounded-r-4xl h-full m-2 flex-col md:flex justify-center">
+        <div className="flex items-center gap-2 mb-8 px-2">
+          <Link href="/" className="text-[10px] md:text-xs tracking-[0.2em] font-black text-brand">
+            WAPIWAPI
+          </Link>
+        </div>
 
-      <nav className="space-y-1 flex-1 select-none">
-        {user && (
+        <nav className="space-y-1 flex-0 select-none">
+          {user && (
+            <NavItem
+              id="dashboard"
+              icon={LayoutDashboard}
+              label="Dashboard"
+              isActive={checkActive("dashboard")}
+              isMobile={isMobile}
+            />
+          )}
+          {user && (
+            <NavItem
+              id="mission"
+              icon={CheckCircle}
+              label="Mission"
+              isActive={checkActive("mission")}
+              isMobile={isMobile}
+            />
+          )}
+          {user && (
+            <NavItem
+              id="sprints"
+              icon={Timer}
+              label="Sprints"
+              isActive={checkActive("sprints")}
+              isMobile={isMobile}
+            />
+          )}
+          {user && (
+            <NavItem
+              id="vault"
+              icon={Vault}
+              label="Vault"
+              isActive={checkActive("vault")}
+              isMobile={isMobile}
+            />
+          )}
           <NavItem
-            id="dashboard"
-            icon={LayoutDashboard}
-            label="Dashboard"
-            isActive={checkActive("dashboard")}
+            id="forum"
+            icon={UserIcon}
+            label="Forum"
+            isActive={checkActive("forum")}
             isMobile={isMobile}
           />
-        )}
-        {user && (
-          <NavItem
-            id="mission"
-            icon={CheckCircle}
-            label="Mission"
-            isActive={checkActive("mission")}
-            isMobile={isMobile}
-          />
-        )}
-        {user && (
-          <NavItem
-            id="sprints"
-            icon={Timer}
-            label="Sprints"
-            isActive={checkActive("sprints")}
-            isMobile={isMobile}
-          />
-        )}
-        {user && (
-          <NavItem
-            id="vault"
-            icon={Vault}
-            label="Vault"
-            isActive={checkActive("vault")}
-            isMobile={isMobile}
-          />
-        )}
-        <NavItem
-          id="forum"
-          icon={UserIcon}
-          label="Forum"
-          isActive={checkActive("forum")}
-          isMobile={isMobile}
-        />
-      </nav>
+        </nav>
 
-      <div className="pt-4 border-t select-none">
-        <NavItem
-          id="settings"
-          icon={Settings}
-          label="Settings"
-          isActive={checkActive("settings")}
-          isMobile={isMobile}
-        />
+        <div className="pt-4 border-t select-none">
+          <NavItem
+            id="settings"
+            icon={Settings}
+            label="Settings"
+            isActive={checkActive("settings")}
+            isMobile={isMobile}
+          />
+        </div>
       </div>
     </aside>
   );

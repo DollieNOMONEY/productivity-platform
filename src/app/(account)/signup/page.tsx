@@ -57,8 +57,11 @@ export default function RegisterPage() {
         });
 
         await setDoc(doc(db, "users", res.user.uid), {
-          name: formData.name,
           email: formData.email,
+          name: formData.name,
+          username: formData.name,
+          bio: "",
+          profilePictureUrl: "/placeholder/profile_picture.jpg",
           createdAt: new Date().toISOString(),
         });
 

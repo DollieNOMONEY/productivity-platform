@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@theme inline {
-  --variant-dark: : where(.dark, .dark *) &;
+@custom-variant dark (&:where(.dark, .dark *));
 
+@theme inline {
   --color-brand: var(--brand-color);
   --color-brand-highlight: var(--brand-highlight);
   --color-brand-highlight-d-1: var(--brand-highlight-d-1);
@@ -25,8 +25,10 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent1: var(--accent1);
+
+
+  --font-font1: var(--font-font1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -64,11 +66,17 @@
 
 :root {
   --radius: 0.625rem;
-  /* Light Mode: bg-zinc-50 | text-zinc-900 */
-  --brand-color: oklch(49.07% 0.306 263.27);
+  
+  --background: oklch(0.8924 0.0075 80.72);
+  --foreground: oklch(0.205 0 0);
+  --accent1: oklch(0.9701 0.0041 91.45);
+  --accent2: oklch(0.1913 0 0);
+  --brand-color: oklch(0% 0 0);
+
+
   --brand-highlight: oklch(0.556 0 0);
   --brand-highlight-d-1: oklch(70.72% 0.189 45.4);
-  --brand-highlight-d-2: oklch(82.44% 0.113 243.03);
+  --brand-highlight-d-2: oklch(22.748% 0.12461 263.707);
   --brand-highlight-d-3: oklch(62.67% 0.21 29.23);
   --brand-inactive: oklch(0.708 0 0);
   --brand-text: oklch(1 0 0);
@@ -83,9 +91,6 @@
   --brand-tx-m4: oklch(29.13% 0.068 165.73);
 
   /* Shadcn components below */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.205 0 0);
-
   --card: oklch(1 0 0); /* Pure white card for contrast on zinc-50 */
   --card-foreground: oklch(0.205 0 0);
   --popover: oklch(1 0 0);
@@ -118,11 +123,14 @@
 }
 
 .dark {
-  --brand-color: oklch(49.07% 0.306 263.27);
+  --brand-color: oklch(100% 0.00011 271.152);
 
   /* Shadcn components below */
   --foreground: oklch(0.985 0 0);
-  --background: oklch(12.856% 0.00001 271.152);
+  --background: oklch(9.693% 0.00001 271.152);
+  --accent1: oklch(0% 0 0);
+
+  --brand-text: oklch(0.205 0 0);
 
   --card: oklch(0.205 0 0); /* zinc-900 card for depth on zinc-950 bg */
   --card-foreground: oklch(0.985 0 0);
@@ -182,7 +190,7 @@
     background: transparent !important;
   }
   *::-webkit-scrollbar-thumb {
-    background: #d4d4d8 !important;
+    background: var(--brand-color) !important;
     border-radius: 9999px !important;
   }
   .dark *:-webkit-scrollbar-thumb {

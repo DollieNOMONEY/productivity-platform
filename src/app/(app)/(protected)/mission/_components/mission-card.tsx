@@ -74,7 +74,7 @@ export function MissionCard({
     // CONTEXT: Done and in the past
     task.done && isPast && "bg-zinc-400 border-zinc-400",
     // CONTEXT: Done and current/future
-    task.done && !isPast && "bg-zinc-900 border-zinc-900 dark:bg-white",
+    task.done && !isPast && "bg-zinc-900 border-zinc-900",
   );
 
   return (
@@ -144,8 +144,8 @@ export function MissionCard({
           <span
             className={cn(
               "text-sm font-medium",
-              task.done && "line-through text-white",
-              isPast && "text-white",
+              task.done && "line-through text-brand-text",
+              isPast && "text-zinc-500",
             )}
           >
             {task.text}

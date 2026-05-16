@@ -38,7 +38,7 @@ import { MissionCard } from "../mission/_components/mission-card";
 import { TaskModal } from "../mission/_components/task-modal";
 import * as Missions from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress"; // Added Progress component
+import { Progress } from "@/components/ui/progress";
 
 // --- TYPES ---
 interface SessionData {
@@ -377,10 +377,10 @@ export default function DashboardPage() {
 
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex flex-col pt-2 pb-2">
-          <h1 className="text-3xl font-semibold">
-            Hello, {profileName || user?.displayName || "User"}!
+          <h1 className={`text-9xl mx-auto text-center select-none font-font1`}>
+            Hello, {profileName || user?.displayName || "User"}.
           </h1>
-          <p className="text-xs text-brand-highlight font-medium tracking-wide uppercase mt-1">
+          <p className="text-xs text-brand-highlight font-medium tracking-wide uppercase mt-1 mx-auto">
             Next streak check-in:{" "}
             <span className="tabular-nums">{timeToMidnight}</span>
           </p>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                   <Flame className="h-5 w-5 text-brand-highlight-d-1" />
                 )}
                 {streakData.status === "frozen" && (
-                  <Snowflake className="h-5 w-5 text-brand-highlight-d-2" />
+                  <Snowflake className="h-5 w-5-d-2" />
                 )}
                 {streakData.status === "decaying" && (
                   <TrendingDown className="h-5 w-5 text-brand-highlight-d-3" />

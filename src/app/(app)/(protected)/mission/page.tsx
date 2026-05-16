@@ -1,26 +1,5 @@
 // --- NEXT.JS ---
 "use client";
-import { useState, useEffect } from "react";
-// --- FIREBASE ---
-import { auth, db } from "@/lib/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import {
-  collection,
-  query,
-  addDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-  where,
-  doc,
-  orderBy,
-  serverTimestamp,
-  writeBatch,
-} from "firebase/firestore";
-// --- FUNCTIONS ---
-import { cn, formatDateStr, getDisplayDate, filterMissions } from "@/lib/utils";
-import type { TaskColor } from "./_components/task-modal";
 import { TaskModal } from "./_components/task-modal";
 // --- SHAD.CN UI COMPONENTS & ICONS ---
 import { Button } from "@/components/ui/button";
@@ -37,198 +16,31 @@ import {
 import {
   Plus,
   Trash2,
-  ArchiveRestore,
   ChevronLeft,
   ChevronRight,
   Filter,
 } from "lucide-react";
+import { cn, getDisplayDate } from "@/lib/utils";
+import { MissionContextMenu } from "@/components/context-menu/mission-context-menu";
 // --- INTERFACE ---
-import * as Missions from "@/lib/data"; // import everything
+import * as Missions from "@/lib/data";
+import { useMissions } from "@/hooks/use-missions";
 
 export default function MissionPage() {
-  // CONTEXT: USER
-  const [user] = useAuthState(auth);
-  // CONTEXT: MISSIONS
-  const [tasks, setTasks] = useState<Missions.MISSIONPLACEHOLDER[]>([]);
-  const [allTags, setAllTags] = useState<string[]>([]);
-  // CONTEXT: UI STATE
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [taskToEdit, setTaskToEdit] =
-    useState<Missions.MISSIONPLACEHOLDER | null>(null);
-  const [isArchiveView, setIsArchiveView] = useState(false);
-  // CONTEXT: FILTERING STATE
-  const [filterTag, setFilterTag] = useState<string | null>(null);
-  const [filterColor, setFilterColor] = useState<string | null>(null);
-  // CONTEXT: DATE STATE
-  const [viewDate, setViewDate] = useState<Date>(new Date());
-  const todayStr = formatDateStr(new Date());
-  const viewDateStr = formatDateStr(viewDate);
-  const isPast = viewDateStr < todayStr;
-  // CONTEXT: MENUS
-  const [contextMenu, setContextMenu] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-    taskId: string | null;
-  }>({ visible: false, x: 0, y: 0, taskId: null });
-
-  useEffect(() => {
-    if (!user) return;
-    let q;
-    if (isArchiveView) {
-      q = query(
-        collection(db, "users", user.uid, "missions"),
-        where("archived", "==", true),
-        orderBy("archivedAt", "desc"),
-      );
-    } else {
-      q = query(
-        collection(db, "users", user.uid, "missions"),
-        where("date", "==", viewDateStr),
-        where("archived", "==", false),
-        orderBy("createdAt", "desc"),
-      );
-    }
-    const unsubscribeDocs = onSnapshot(q, (snapshot) => {
-      const tasksData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Missions.MISSIONPLACEHOLDER[];
-
-      setTasks(tasksData);
-
-      if (!isArchiveView) {
-        const uniqueTags = Array.from(
-          new Set(tasksData.map((t) => t.tag).filter(Boolean)),
-        );
-        setAllTags(uniqueTags);
-      }
-    });
-    return () => unsubscribeDocs();
-  }, [user, viewDateStr, isArchiveView]);
-
-  useEffect(() => {
-    const handleClick = () => {
-      setContextMenu({ visible: false, x: 0, y: 0, taskId: null });
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
-
-  // --- CONTEXT: FIREBASE ACTIONS (CRUD) ---
-  const addOrEditTask = async (text: string, tag: string, color: TaskColor) => {
-    if (!user) return;
-    if (taskToEdit) {
-      const taskRef = doc(db, "users", user.uid, "missions", taskToEdit.id);
-      await updateDoc(taskRef, {
-        text,
-        tag,
-        color,
-        updatedAt: serverTimestamp(),
-      });
-    } else {
-      await addDoc(collection(db, "users", user.uid, "missions"), {
-        text,
-        tag,
-        color,
-        date: viewDateStr,
-        done: false,
-        archived: false,
-        createdAt: serverTimestamp(),
-      });
-    }
-    setTaskToEdit(null);
-  };
-  const toggleTask = async (id: string, currentStatus: boolean) => {
-    if (!user || isPast) return;
-    await updateDoc(doc(db, "users", user.uid, "missions", id), {
-      done: !currentStatus,
-      updatedAt: serverTimestamp(),
-    });
-  };
-  const archiveTask = async (id: string) => {
-    if (!user || isPast) return;
-    await updateDoc(doc(db, "users", user.uid, "missions", id), {
-      archived: true,
-      archivedAt: serverTimestamp(),
-    });
-  };
-  const restoreTask = async (id: string) => {
-    if (!user) return;
-    try {
-      await updateDoc(doc(db, "users", user.uid, "missions", id), {
-        archived: false,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (e) {
-      console.error("Restore failed", e);
-    }
-  };
-  const deleteTask = async (id: string) => {
-    if (!user || (isPast && !isArchiveView)) return;
-    try {
-      await deleteDoc(doc(db, "users", user.uid, "missions", id));
-    } catch (e) {
-      console.error("Delete failed", e);
-    }
-  };
-  const updateAllTags = async (
-    oldTag: string,
-    newTag: string,
-    newColor?: string,
-  ) => {
-    if (!user) return;
-    const q = query(
-      collection(db, "users", user.uid, "missions"),
-      where("tag", "==", oldTag),
-    );
-    const snapshot = await getDocs(q);
-    const batch = writeBatch(db);
-
-    snapshot.docs.forEach((docSnap) => {
-      const updates: any = { tag: newTag };
-      if (newColor) updates.color = newColor;
-      batch.update(docSnap.ref, updates);
-    });
-    await batch.commit();
-  };
-
-  // --- CONTEXT: UI EVENT HANDLERS ---
-  const handleContextMenu = (
-    e: React.PointerEvent | React.MouseEvent,
-    id: string,
-  ) => {
-    e.preventDefault();
-
-    // Pointer Events & Mouse Events have pageX/pageY directly on the event object
-    const x = e.pageX;
-    const y = e.pageY;
-
-    setContextMenu({
-      visible: true,
-      x,
-      y,
-      taskId: id,
-    });
-  };
-
-  const displayedTasks = filterMissions(tasks, filterTag, filterColor);
-
-  const allExistingTags = tasks
-  .map((t) => t.tag)
-  .filter((tag) => tag !== undefined && tag !== "");
+  
+  const { tasks, actions, ui, dateState, filters, allTags, allExistingTags} = useMissions();
   
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 relative max-w-2xl mx-auto pt-10">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {!isArchiveView && (
+            {!dateState.isArchiveView && (
               <div className="flex items-center rounded-full p-1">
                 <button
                   onClick={() =>
-                    setViewDate(
-                      new Date(viewDate.setDate(viewDate.getDate() - 1)),
+                    dateState.setViewDate(
+                      new Date(dateState.viewDate.setDate(dateState.viewDate.getDate() - 1)),
                     )
                   }
                   className="p-1 rounded-full hover:bg-white dark:hover:bg-zinc-800 transition"
@@ -236,12 +48,12 @@ export default function MissionPage() {
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <span className="text-sm font-semibold px-4 select-none min-w-[140px] text-center">
-                  {getDisplayDate(viewDate)}
+                  {getDisplayDate(dateState.viewDate)}
                 </span>
                 <button
                   onClick={() =>
-                    setViewDate(
-                      new Date(viewDate.setDate(viewDate.getDate() + 1)),
+                    dateState.setViewDate(
+                      new Date(dateState.viewDate.setDate(dateState.viewDate.getDate() + 1)),
                     )
                   }
                   className="p-1 rounded-full hover:bg-white dark:hover:bg-zinc-800 transition"
@@ -250,7 +62,7 @@ export default function MissionPage() {
                 </button>
               </div>
             )}
-            {isArchiveView && (
+            {dateState.isArchiveView && (
               <h2 className="text-xl font-bold text-red-500">
                 Recently Deleted
               </h2>
@@ -260,9 +72,9 @@ export default function MissionPage() {
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
-                setIsArchiveView(!isArchiveView);
-                setFilterTag(null);
-                setFilterColor(null);
+                dateState.setIsArchiveView(!dateState.isArchiveView);
+                filters.setFilterTag(null);
+                filters.setFilterColor(null);
               }}
               size="icon"
               variant="outline"
@@ -271,11 +83,11 @@ export default function MissionPage() {
               <Trash2 className="h-4 w-4" />
             </Button>
 
-            {!isPast && !isArchiveView && (
+            {!dateState.isPast && !dateState.isArchiveView && (
               <Button
                 onClick={() => {
-                  setTaskToEdit(null);
-                  setIsModalOpen(true);
+                  ui.setTaskToEdit(null);
+                  ui.setIsModalOpen(true);
                 }}
                 size="sm"
                 className="rounded-full select-none bg-brand"
@@ -287,7 +99,7 @@ export default function MissionPage() {
         </div>
 
         {/* CONTEXT: Filter Drop-down */}
-        {!isArchiveView && (
+        {!dateState.isArchiveView && (
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-wider text-brand-highlight select-none">
               Filters:
@@ -297,20 +109,20 @@ export default function MissionPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Badge
-                  variant={filterTag ? "default" : "secondary"}
+                  variant={filters.filterTag ? "default" : "secondary"}
                   className="cursor-pointer hover:opacity-80 transition select-none"
                 >
                   <Filter className="w-3 h-3 mr-1" />
-                  {filterTag || "Tag Name"}
+                  {filters.filterTag || "Tag Name"}
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-36">
-                <DropdownMenuItem onClick={() => setFilterTag(null)}>
+                <DropdownMenuItem onClick={() => filters.setFilterTag(null)}>
                   All Names
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {allTags.map((tag) => (
-                  <DropdownMenuItem key={tag} onClick={() => setFilterTag(tag)}>
+                  <DropdownMenuItem key={tag} onClick={() => filters.setFilterTag(tag)}>
                     {tag}
                   </DropdownMenuItem>
                 ))}
@@ -321,50 +133,42 @@ export default function MissionPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Badge
-                  variant={filterColor ? "default" : "secondary"}
+                  variant={filters.filterColor ? "default" : "secondary"}
                   className="cursor-pointer hover:opacity-80 transition select-none"
                 >
                   <Filter className="w-3 h-3 mr-1" />
-                  {filterColor
-                    ? Missions.COLORS[
-                        filterColor as keyof typeof Missions.COLORS
-                      ].label
-                    : "Tag Color"}
+                  {Missions.getColorLabel(filters.filterColor)}
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-36">
-                <DropdownMenuItem onClick={() => setFilterColor(null)}>
+                <DropdownMenuItem onClick={() => filters.setFilterColor(null)}>
                   All Colors
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {(
-                  Object.keys(Missions.COLORS) as Array<
-                    keyof typeof Missions.COLORS
-                  >
-                ).map((c) => (
+                {Missions.getColorKeys().map((c) => (
                   <DropdownMenuItem
                     key={c}
-                    onClick={() => setFilterColor(c)}
+                    onClick={() => filters.setFilterColor(c)}
                     className="flex items-center gap-2"
                   >
                     <div
                       className={cn(
                         "w-2 h-2 rounded-full border border-zinc-300",
-                        Missions.COLORS[c].bg,
+                        Missions.getColorBg(c)
                       )}
                     />
-                    {Missions.COLORS[c].label}
+                    {Missions.getColorLabel(c)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             {/* CONTEXT: Clear Filters */}
-            {(filterTag || filterColor) && (
+            {(filters.filterTag || filters.filterColor) && (
               <button
                 onClick={() => {
-                  setFilterTag(null);
-                  setFilterColor(null);
+                  filters.setFilterTag(null);
+                  filters.setFilterColor(null);
                 }}
                 className="hover:scale-90 text-xs text-red-500 hover:text-red-700 font-medium ml-2 transition"
               >
@@ -377,167 +181,49 @@ export default function MissionPage() {
 
       <div className="space-y-2 overflow-x-hidden py-2">
         <AnimatePresence>
-          {displayedTasks.map((task) => (
+          {tasks.map((task) => (
             <MissionCard
               key={task.id}
               task={task}
-              isPast={isPast}
-              isArchiveView={isArchiveView}
-              onToggle={toggleTask}
-              onArchive={archiveTask}
-              onDelete={deleteTask}
-              onRestore={restoreTask}
+              isPast={dateState.isPast}
+              isArchiveView={dateState.isArchiveView}
+              onToggle={actions.toggleTask}
+              onArchive={actions.archiveTask}
+              onDelete={actions.deleteTask}
+              onRestore={actions.restoreTask}
               onEdit={(t) => {
-                setTaskToEdit(t);
-                setIsModalOpen(true);
+                ui.setTaskToEdit(t);
+                ui.setIsModalOpen(true);
               }}
-              onContextMenu={handleContextMenu}
+              onContextMenu={ui.handleContextMenu}
             />
           ))}
         </AnimatePresence>
 
-        {displayedTasks.length === 0 && (
+        {tasks.length === 0 && (
           <div className="text-center py-12 text-brand-highlight text-sm">
-            {isArchiveView ? "Trash is empty." : "No missions for today."}
+            {dateState.isArchiveView ? "Trash is empty." : "No missions for today."}
           </div>
         )}
       </div>
 
       {/* CONTEXT: Right click for Context Menu */}
-      {contextMenu.visible && (
-        <div
-          className="fixed z-50  border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl py-1 w-48 animate-in fade-in zoom-in-95 duration-100 overflow-hidden"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-        >
-          {isArchiveView ? (
-            <>
-              <button
-                onClick={() => {
-                  if (contextMenu.taskId) restoreTask(contextMenu.taskId);
-                  setContextMenu({ visible: false, x: 0, y: 0, taskId: null });
-                }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center"
-              >
-                <ArchiveRestore className="w-3 h-3 mr-2" /> Restore
-              </button>
-              <button
-                onClick={() => {
-                  if (contextMenu.taskId) deleteTask(contextMenu.taskId);
-                  setContextMenu({ visible: false, x: 0, y: 0, taskId: null });
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center"
-              >
-                <Trash2 className="w-3 h-3 mr-2" /> Delete Forever
-              </button>
-            </>
-          ) : (
-            <div className="flex flex-col">
-              {/* CONTEXT: Edit Mission, Move to Tag, Theme Color */}
-              <button
-                onClick={() => {
-                  const t = tasks.find((t) => t.id === contextMenu.taskId);
-                  if (t) {
-                    setTaskToEdit(t);
-                    setIsModalOpen(true);
-                  }
-                  setContextMenu({ visible: false, x: 0, y: 0, taskId: null });
-                }}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              >
-                Edit Mission
-              </button>
-
-              <div className="h-1px bg-zinc-100 dark:bg-zinc-800 my-1" />
-
-              <div className="px-4 py-1.5 text-[10px] font-bold text-brand-highlight uppercase tracking-wider">
-                Move to Tag
-              </div>
-              <div className="max-h-32 overflow-y-auto px-1">
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => {
-                      if (contextMenu.taskId)
-                        updateDoc(
-                          doc(
-                            db,
-                            "users",
-                            user!.uid,
-                            "missions",
-                            contextMenu.taskId,
-                          ),
-                          { tag },
-                        );
-                      setContextMenu({
-                        visible: false,
-                        x: 0,
-                        y: 0,
-                        taskId: null,
-                      });
-                    }}
-                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-
-              <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1" />
-
-              <div className="px-4 py-1.5 text-[10px] font-bold text-brand-highlight uppercase tracking-wider">
-                Theme Color
-              </div>
-              <div className="grid grid-cols-5 gap-1 px-3 pb-2">
-                {(
-                  Object.keys(Missions.COLORS) as Array<
-                    keyof typeof Missions.COLORS
-                  >
-                ).map((cKey) => (
-                  <button
-                    key={cKey}
-                    title={Missions.COLORS[cKey].label}
-                    onClick={() => {
-                      const t = tasks.find((t) => t.id === contextMenu.taskId);
-                      if (t) updateAllTags(t.tag, t.tag, cKey);
-                      setContextMenu({
-                        visible: false,
-                        x: 0,
-                        y: 0,
-                        taskId: null,
-                      });
-                    }}
-                    className={cn(
-                      "w-6 h-6 rounded-full border border-zinc-200 dark:border-zinc-700 transition hover:scale-110",
-                      Missions.COLORS[cKey].bg,
-                    )}
-                  />
-                ))}
-              </div>
-
-              <div className="h-px bg-zinc-100 dark:bg-zinc-800 my-1" />
-
-              <button
-                onClick={() => {
-                  if (contextMenu.taskId) archiveTask(contextMenu.taskId);
-                  setContextMenu({ visible: false, x: 0, y: 0, taskId: null });
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-              >
-                Archive
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      <MissionContextMenu 
+        ui={ui} 
+        actions={actions} 
+        allTags={allTags} 
+        tasks={tasks}
+        isArchiveView={dateState.isArchiveView} 
+      />
 
       <TaskModal
-        isOpen={isModalOpen}
+        isOpen={ui.isModalOpen}
         onClose={() => {
-          setIsModalOpen(false);
-          setTaskToEdit(null);
+          ui.setIsModalOpen(false);
+          ui.setTaskToEdit(null);
         }}
-        onSave={addOrEditTask}
-        initialData={taskToEdit}
+        onSave={actions.addOrEditTask}
+        initialData={ui.taskToEdit}
         existingTags={allExistingTags}
       />
     </div>

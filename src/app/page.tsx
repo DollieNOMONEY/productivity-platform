@@ -23,7 +23,7 @@ export default function LandingPage() {
       <nav className="flex items-center justify-between px-6 md:px-10 py-8 relative z-50">
         <div className="flex items-center gap-3">
           <span className="text-[10px] md:text-xs font-bold tracking-widest text-brand">
-            WAPiWAPI
+            WAPIWAPI
           </span>
         </div>
 
@@ -106,23 +106,22 @@ export default function LandingPage() {
           </div>
         )}
       </nav>
+      
+      <h1 className="fixed bottom-5 left-0 w-full text-center 
+               text-[19vw] 
+               font-black leading-[0.7] tracking-tighter 
+               pb-4 pointer-events-none select-none
+               animate-in fade-in slide-in-from-bottom-12 duration-1000 opacity-80">
+      WAPIWAPI
+      </h1>
 
       <main className="flex flex-1 flex-col items-center justify-center px-6 md:px-10">
-        <div className="max-w-4xl w-full ">
-          <h1 className="text-[15vw] text-center md:text-[120px] font-black leading-[0.85] tracking-tighter mb-8 animate-in fade-in duration-700">
-            <span className="text-brand">INDIVI</span> <br/>
-            <span className="text-brand">DUALS</span> <br/>
-            WAPI <br/>
-            <span className="text-brand">INDIVI</span> <br/>
-            <span className="text-brand">DUALS</span> 
-          </h1>
-
+        <div className="max-w-4xl w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 md:gap-12 mb-12">
             <div>
               <p className="max-w-[360px] text-sm md:text-sm leading-relaxed tracking-tight">
                 <span className="font-bold">Student. Developer. Director.</span> <br/> 
-                "We are Prepared Individuals" is the only assistant you need. <br/> 
-                <span className="font-bold">1.62%</span>
+                "We are Prepared Individuals" is the only assistant you need. <br/>
               </p>
             </div>
 
@@ -156,7 +155,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="mt-20 md:absolute md:bottom-12 w-full px-6 md:px-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-0 pt-8 pb-10 md:pb-0">
+        <div className="mt-20 md:absolute md:bottom-72 w-full px-6 md:px-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-0 pt-8 pb-10 md:pb-0">
           <div className="flex flex-wrap gap-8 md:gap-12">
             <div>
               <p className="text-[9px] uppercase tracking-widest mb-1">

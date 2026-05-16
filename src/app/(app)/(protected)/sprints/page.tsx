@@ -264,7 +264,7 @@ export default function TimerPage() {
 
         <main
           className={cn(
-            "hidden md:flex w-full lg:max-w-[700px] mx-auto relative dark:bg-zinc-950 overflow-hidden select-none",
+            "hidden md:flex w-full lg:max-w-[700px] mx-auto relativeoverflow-hidden select-none",
             isCreated ? "flex" : "hidden",
           )}
         >

@@ -15,7 +15,7 @@ export default function RootLayout({ children }: Props) {
       <main
         className={cn(
           "flex-1 h-screen transition-all",
-          "md:pl-64",
+          "md:pl-72",
           "pb-24 md:pb-8 ",
           "selection:bg-brand selection:text-white",
           // space for bottom nav on mobile

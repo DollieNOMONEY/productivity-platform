@@ -12,6 +12,17 @@ export const COLORS = {
   focus: { label: "Focus", bg: "bg-brand-bg-m3", text: "text-brand-tx-m3" },
   flow: { label: "Flow", bg: "bg-brand-bg-m4", text: "text-brand-tx-m4" },
 };
+export const getColorLabel = (colorKey: string | null) => {
+  const key = colorKey as keyof typeof COLORS;
+  return COLORS[key]?.label || "Tag Color";
+};
+export const getColorBg = (colorKey: string) => {
+  const key = colorKey as keyof typeof COLORS;
+  return COLORS[key]?.bg || "";
+};
+export const getColorKeys = () => {
+  return Object.keys(COLORS) as Array<keyof typeof COLORS>;
+};
 
 // VAULT
 export const DEFAULT_SUBJECTS = [
@@ -46,6 +57,7 @@ export interface VaultItem {
     seconds: number;
     nanoseconds: number;
   };
+  path?: string;
 }
 
 export const SWIPE_ANIMATIONS = {
