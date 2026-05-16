@@ -27,10 +27,9 @@ export default function VaultPage() {
           {/* CONTEXT: Full Screen Overlay */}
           <FullScreenViewer 
             item={vault.selectedItem}
-            items={vault.filteredItems}
+            currentPath={vault.currentPath}
             onClose={() => vault.setSelectedItem(null)} 
             onUpdateSubject={vault.updateItemSubject}
-            onNavigate={(newItem) => vault.setSelectedItem(newItem)}
           />
         </div>
       )}

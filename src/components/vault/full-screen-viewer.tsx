@@ -37,12 +37,12 @@ export default function FullScreenViewer({
 
     // Only add the listener if an item is actually open
     if (item) {
-      window.addEventListener("keydown", handleKeyDown);
+      globalThis.addEventListener("keydown", handleKeyDown);
     }
 
     // Clean up the listener when the component unmounts or item closes
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      globalThis.removeEventListener("keydown", handleKeyDown);
     };
   }, [item, onClose]);
 
