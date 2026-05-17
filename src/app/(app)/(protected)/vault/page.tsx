@@ -11,7 +11,10 @@ export default function VaultPage() {
   
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 pb-24 overflow-hidden space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <UploadSection vault={vault} />
+     
+      {!vault.isReadyToCommit && !vault.isProcessing && (
+        <UploadSection vault={vault} />
+      )}
 
       {/* CONTEXT: Swiping Interface */}
       {vault.isProcessing && <SwipeSorter vault={vault} />}
@@ -33,7 +36,6 @@ export default function VaultPage() {
           />
         </div>
       )}
-
       
     </div>
   );

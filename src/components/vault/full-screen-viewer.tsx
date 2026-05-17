@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ export default function FullScreenViewer({
     moveVaultFile,
   } = useVault();
 
+  
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -46,6 +47,8 @@ export default function FullScreenViewer({
     };
   }, [item, onClose]);
 
+  const touchTimer = useRef<NodeJS.Timeout | null>(null);
+
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
     x: number;
@@ -61,6 +64,36 @@ export default function FullScreenViewer({
     targetType: null,
     targetPath: null,
   });
+
+  const handleTouchStart = (
+    e: React.TouchEvent,
+    type: "folder" | "file",
+    id: string | null,
+    path: string | null
+  ) => {
+    if (!e.touches[0]) return;
+    const touch = e.touches[0];
+    const x = touch.clientX;
+    const y = touch.clientY;
+
+    touchTimer.current = setTimeout(() => {
+      setContextMenu({
+        visible: true,
+        x,
+        y,
+        targetId: id,
+        targetType: type,
+        targetPath: path,
+      });
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimer.current) {
+      clearTimeout(touchTimer.current);
+      touchTimer.current = null;
+    }
+  };
 
   const handleContextMenu = (
     e: React.MouseEvent,
@@ -111,6 +144,9 @@ export default function FullScreenViewer({
             className="fixed inset-0 z-200 flex items-center justify-center bg-black/90 backdrop-blur-sm p-2 md:p-8"
             onClick={onClose}
             onContextMenu={(e) => handleContextMenu(e, "folder", null, currentPath)}
+            onTouchStart={(e) => handleTouchStart(e, "folder", null, currentPath)}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchEnd}
           >
             <Button
               variant="secondary"
@@ -150,6 +186,11 @@ export default function FullScreenViewer({
                     e.stopPropagation();
                     handleContextMenu(e, "file", item.id, item.path ?? null);
                   }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    handleTouchStart(e, "file", item.id, item.path ?? null);
+                  }}
+                  onTouchEnd={handleTouchEnd}
                 />
               ) : (
                 <div className="w-full h-full bg-background rounded-xl overflow-hidden shadow-2xl flex flex-col"
@@ -157,6 +198,11 @@ export default function FullScreenViewer({
                     e.stopPropagation();
                     handleContextMenu(e, "file", item.id, item.path?? null);
                   }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                    handleTouchStart(e, "file", item.id, item.path ?? null);
+                  }}
+                  onTouchEnd={handleTouchEnd}
                   >
                   <div className="w-full bg-secondary/50 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b shrink-0">
                     <div className="flex items-center gap-2 overflow-hidden">

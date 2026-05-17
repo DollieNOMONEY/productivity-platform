@@ -1,6 +1,6 @@
 "use client"
 // --- NEXT.JS ---
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 // --- ShadCN UI COMPONENTS & DESIGN ---
 import { DeleteAssetLoader } from "@/app/(app)/(protected)/vault/delete-asset-dialog";
@@ -36,6 +36,38 @@ export default function GallerySection({ vault }: { readonly vault: VaultHookRet
     const parts = currentPath.split("/").filter(Boolean);
     parts.pop();
     setCurrentPath(parts.length === 0 ? "/" : `/${parts.join("/")}`);
+  };
+
+  const touchTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTouchStart = (
+    e: React.TouchEvent,
+    type: "folder" | "file",
+    id: string | null,
+    path: string | null
+  ) => {
+    if (!e.touches[0]) return;
+    const touch = e.touches[0];
+    const x = touch.clientX;
+    const y = touch.clientY;
+
+    touchTimer.current = setTimeout(() => {
+      setContextMenu({
+        visible: true,
+        x,
+        y,
+        targetId: id,
+        targetType: type,
+        targetPath: path,
+      });
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimer.current) {
+      clearTimeout(touchTimer.current);
+      touchTimer.current = null;
+    }
   };
 
   const [contextMenu, setContextMenu] = useState<{
@@ -184,6 +216,9 @@ export default function GallerySection({ vault }: { readonly vault: VaultHookRet
             <Card
               key={folder}
               onContextMenu={(e) => handleContextMenu(e, "folder", null, folderFullPath)}
+              onTouchStart={(e) => handleTouchStart(e, "folder", null, folderFullPath)}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchEnd}
               className="break-inside-avoid p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors border-dashed"
               onClick={() =>
                 setCurrentPath(
@@ -210,6 +245,9 @@ export default function GallerySection({ vault }: { readonly vault: VaultHookRet
             <Card
               key={item.id}
               onContextMenu={(e) => handleContextMenu(e, "file", item.id, item.path || "/")}
+              onTouchStart={(e) => handleTouchStart(e, "file", item.id, item.path || "/")}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchEnd}
               /* 2. CONTEXT: BREAK-INSIDE-AVOID: This prevents cards from SPLITTING between columns */
               className="break-inside-avoid overflow-hidden group flex flex-col mb-4 cursor-pointer hover:border-primary/50 transition-colors"
               onClick={() => vault.setSelectedItem(item)}
@@ -220,7 +258,7 @@ export default function GallerySection({ vault }: { readonly vault: VaultHookRet
                   <img
                     src={item.url}
                     alt="Vault Asset"
-                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
                   />
                 ) : (
                   <div className="aspect-3/4 flex items-center justify-center w-full bg-muted/10 group-hover:bg-muted/20 transition-colors">
@@ -229,7 +267,7 @@ export default function GallerySection({ vault }: { readonly vault: VaultHookRet
                 )}
 
                 {/* CONTEXT: Delete overlay (ADDED PROPAGATION to prevent full-screen when deleting)*/}
-                <div className="absolute top-2 right-2 z-20">
+                <div className="absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
                   <DeleteAssetLoader
                     id={item.id}
                     url={item.url}

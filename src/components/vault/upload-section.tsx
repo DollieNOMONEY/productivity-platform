@@ -8,7 +8,7 @@ import {
 import { Button } from "../ui/button";
 import { ChevronsUpDown, UploadCloud } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
-import { VaultHookReturn, useVault } from "@/hooks/use-vault";
+import { VaultHookReturn } from "@/hooks/use-vault";
 
 export default function UploadSection({ vault }: { readonly vault: VaultHookReturn }) {
   const {
@@ -17,7 +17,7 @@ export default function UploadSection({ vault }: { readonly vault: VaultHookRetu
     isDragActive,
     isProcessing,
     isReadyToCommit,
-  } = useVault();
+  } = vault;
 
   return (
     <Collapsible>

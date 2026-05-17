@@ -70,7 +70,7 @@ export function MissionCard({
   const toogleStyle = cn(
     "h-5 w-5 rounded border flex shrink-0 items-center justify-center transition-colors",
     // CONTEXT: Not done
-    !task.done && "border-zinc-300 bg-transparent",
+    !task.done && "border-white bg-transparent",
     // CONTEXT: Done and in the past
     task.done && isPast && "bg-zinc-400 border-zinc-400",
     // CONTEXT: Done and current/future

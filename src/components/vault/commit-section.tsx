@@ -9,11 +9,10 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { CheckCircle2 } from "lucide-react";
-import { VaultHookReturn, useVault } from "@/hooks/use-vault";
+import { VaultHookReturn } from "@/hooks/use-vault";
 
 export default function CommitSection({ vault }: { readonly vault: VaultHookReturn }) {
-  const { setAssets, setCurrentIndex, assets, isUploading, commitToVault } =
-    useVault();
+  const { setAssets, setCurrentIndex, assets, isUploading, commitToVault } = vault;
 
   return (
     <Card className="border-2 shadow-lg animate-in fade-in">

@@ -4,11 +4,13 @@ import { FileText, Brain, ArrowUp, ArrowLeft, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DEFAULT_SUBJECTS, SWIPE_ANIMATIONS } from "@/lib/data";
-import { VaultHookReturn, useVault } from "@/hooks/use-vault";
+import { VaultHookReturn } from "@/hooks/use-vault";
 
 export default function SwipeSorter({ vault }: { readonly vault: VaultHookReturn }) {
-  const { activeSubject, assets, currentIndex, setActiveSubject, handleSort } =
-    useVault();
+  const { activeSubject, assets, currentIndex, setActiveSubject, handleSort } = vault;
+  
+  if (!assets || assets.length === 0) return <div>No assets found in vault prop</div>;
+  if (!assets[currentIndex]) return <div>Current index {currentIndex} is out of bounds</div>;
 
   return (
     <div className="space-y-6 animate-in fade-in">
