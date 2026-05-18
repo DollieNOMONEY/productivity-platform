@@ -29,6 +29,7 @@ export default function VaultPage() {
 
           {/* CONTEXT: Full Screen Overlay */}
           <FullScreenViewer 
+            vault={vault}
             item={vault.selectedItem}
             currentPath={vault.currentPath}
             onClose={() => vault.setSelectedItem(null)} 

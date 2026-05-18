@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { VaultItem, DEFAULT_SUBJECTS } from "@/lib/data";
 import { FileText, X } from "lucide-react";
 import { VaultContextMenu } from "../context-menu/vault-context-menu";
-import { useVault } from "@/hooks/use-vault";
+import { useVault, VaultHookReturn } from "@/hooks/use-vault";
 
 interface FullScreenViewerProps {
+  readonly vault: VaultHookReturn
   readonly item: VaultItem | null;
   readonly onClose: () => void;
   readonly onUpdateSubject: (id: string, subject: string) => void;
@@ -16,6 +17,7 @@ interface FullScreenViewerProps {
 }
 
 export default function FullScreenViewer({
+  vault,
   item,
   onClose,
   currentPath,
@@ -26,7 +28,7 @@ export default function FullScreenViewer({
     renameVaultFolder,
     deleteVaultFolder,
     moveVaultFile,
-  } = useVault();
+  } = vault;
 
   
   useEffect(() => {
@@ -166,7 +168,7 @@ export default function FullScreenViewer({
               onClick={(e) => e.stopPropagation()} // CONTEXT: Prevent clicking the image/pdf from closing the modal
             >
               <div className="w-full flex gap-2 p-4 md:justify-center rounded-xl mt-4 overflow-x-auto scrollbar-hide shrink-0">
-                {DEFAULT_SUBJECTS.map((sub) => (
+                {/* {DEFAULT_SUBJECTS.map((sub) => (
                   <button
                     key={sub}
                     onClick={() => onUpdateSubject(item.id, sub)}
@@ -174,7 +176,7 @@ export default function FullScreenViewer({
                   >
                     {sub}
                   </button>
-                ))}
+                ))} */}
               </div>
 
               {item.fileType.startsWith("image/") ? (

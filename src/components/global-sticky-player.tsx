@@ -18,7 +18,7 @@ export default function GlobalStickyPlayer() {
   if (!isCreated) return null;
 
   const bottomClass =
-    pathname === "/" ? "md:left-0 md:w-full" : "md:left-64 md:w-auto";
+    pathname === "/" ? "md:left-0 md:w-full" : "md:left-72 md:w-auto";
 
   return (
     <div
